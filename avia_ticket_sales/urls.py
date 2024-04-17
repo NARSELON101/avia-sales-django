@@ -17,8 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from .ninja_app import api
+from avia_ticket_sales.views import test
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', api.urls)
+    path('api/', api.urls),
+    path('',  test)
 ]

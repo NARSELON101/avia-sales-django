@@ -57,7 +57,7 @@ ROOT_URLCONF = 'avia_ticket_sales.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
+        'DIRS': [BASE_DIR / 'avia_ticket_sales' / 'templates']
         ,
         'APP_DIRS': True,
         'OPTIONS': {
