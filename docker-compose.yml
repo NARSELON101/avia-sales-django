@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  app:
+    container_name: django_app
+    build:
+      context: .
+      dockerfile: djangoProject/Dockerfile
+    restart: always
+    ports:
+      - 8000:8000
