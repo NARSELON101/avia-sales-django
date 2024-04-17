@@ -5,7 +5,7 @@ services:
     container_name: django_app
     build:
       context: .
-      dockerfile: djangoProject/Dockerfile
+      dockerfile: avia_ticket_sales/Dockerfile
     restart: always
     ports:
       - 8000:8000
