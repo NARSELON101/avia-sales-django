@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/', api.urls),
     path('',  views.index, name='index'),
     path('login/', views.login_page, name='login'),
+    path("registration/", views.registration_page, name='registration')
 ]

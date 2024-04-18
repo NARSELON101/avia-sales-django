@@ -40,11 +40,46 @@ p {
   text-decoration: underline;
 }
 
+.header {
+  height: 85px;
+  box-shadow: 0 1px 6px 0 rgb(0 0 0 / 8%);
+  width: 100vw;
+  background-color: #fff;
+  display: -webkit-box;
+  display: flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  z-index: 999;
+}
+
+.header__content {
+  width: 100%;
+  max-width: 1200px;
+  display: -webkit-box;
+  display: flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  margin: 0 auto;
+}
 
 @media screen and (width <= 960px) {
   .header__content {
     width: 90%;
   }
+}
+
+.header__logo,
+.header__nav {
+  height: 48px;
 }
 
 .logo__link {
@@ -55,6 +90,44 @@ p {
 .logo__img {
   height: 100%;
   width: auto;
+}
+
+.nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: -webkit-box;
+  display: flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.nav__item {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0 24px;
+  height: 100%;
+}
+
+.nav__item:not(:last-child) {
+  border-right: 1px solid #f7f7f7;
+}
+
+.nav__link {
+  text-decoration: none;
+  color: #0064d2;
+  height: 100%;
+  display: -webkit-box;
+  display: flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 
 .container {
@@ -207,7 +280,6 @@ p {
   margin-bottom: 16px;
 }
 
-
 .field__input {
   background-color: #fff;
   border: 1px solid #c6cbda;
@@ -345,27 +417,50 @@ p {
     <div class="main__content-right">
       <!-- Start Login Form -->
       <div class="form-login">
-
+          <div class="form-login__inner">
+                  <div class="form-login__header">
+                    <h2 class="form-login__title">Регистрация</h2>
+                    <p class="form-login__subtitle">
+                      Заполните все поля:
+                    </p>
+                  </div>
           <!-- Start Form -->
           <form action="" class="form-login__form">
             <div class="field">
               <div class="field__group">
                 <input
                   autocomplete="off"
+                  placeholder="Имя"
+                  name="first_name"
+                  class="field__input"
+                  value=""
+                />
+              </div>
+            </div>
+            <div class="field">
+              <div class="field__group">
+                <input
+                  autocomplete="off"
+                  placeholder="Фамилия"
+                  name="last_name"
+                  class="field__input"
+                  value=""
+                />
+              </div>
+            </div>
+            <div class="field">
+              <div class="field__group">
+                <input
+                  autocomplete="off"
                   type="email"
                   placeholder="Email"
-                  name="username"
+                  name="email"
                   class="field__input"
                 />
               </div>
             </div>
             <div class="field">
               <div class="field__group">
-                <img
-                  src="{% static 'login/ic_toggle-password.svg' %}"
-                  alt="Password"
-                  class="field__icon field__icon--right"
-                />
                 <input
                   autocomplete="off"
                   type="password"
@@ -376,16 +471,11 @@ p {
                 />
               </div>
             </div>
-            <div class="field">
+              <div class="field">
               <button class="form-login__button button button--yellow">
-                ВОЙТИ
+                Продолжить
               </button>
             </div>
-              <a href="{% url 'registration' %}">
-              <button type="button" class="form-login__button button button--yellow">
-                Регистрация
-              </button>
-              </a>
           </form>
 
 
