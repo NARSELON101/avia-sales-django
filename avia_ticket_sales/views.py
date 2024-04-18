@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 # Create your views here.
 
@@ -8,4 +8,9 @@ def index(request):
 
 
 def login_page(request):
-    return render(request, 'avia_ticket_sales/login_page.html')
+    user = request.GET.get("username")
+    password = request.GET.get("password")
+    if user and password:
+        return redirect('/api/docs')
+    else:
+        return render(request, 'avia_ticket_sales/login_page.html')
