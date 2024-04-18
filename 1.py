@@ -1,3 +1,4 @@
+import uuid
 from pathlib import Path
 
 import requests
@@ -7,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent
 
 CARD_TEMPLATE = """
 <div class="col p-2">
-            <div class="card" style="width: 18rem;">
+            <div class="card shadow rounded" style="width: 22rem; card-box-shadow: 1px">
               <div class="card-body">
                 <h5 class="card-title">Из {from_country}</h5>
                 <h5 class="card-title">В {to_country}</h5>
@@ -15,7 +16,7 @@ CARD_TEMPLATE = """
                 <p class="card-text">Дата рейса: {flight_date}</p>
                 <p class="card-text">Дата обратного рейса: {back_date}</p>
                   <h3>Цена: {price}</h3>
-                <a href="#" class="card-link"><button type="button" class="btn btn-info" style="background-color: #588c8b !important; border-color: #588c8b">Забронировать</button></a>
+                <a href="#" class="card-link"><button type="button" class="btn btn-info" style="background-color: #588c8b !important; border-color: #588c8b; color: white">Забронировать</button></a>
               </div>
             </div>
         </div>
@@ -32,6 +33,7 @@ class Ticket:
         self.back_date = kwargs.get("back_date")
         self.fly_time = kwargs.get("fly_time")
         self.allowed = True
+        self.uid = uuid.uuid4()
 
     def fill_html(self):
         return CARD_TEMPLATE.format(**self.__dict__)
@@ -67,9 +69,9 @@ class KayakTicketParser:
 
         print(cards)
         with open(BASE_DIR / 'avia_ticket_sales' / 'templates'/ 'avia_ticket_sales' / 'cards.html', 'w', encoding='utf-8') as file:
-            file.write("{% extends 'avia_ticket_sales/layout.html' %}")
-            file.write("{% load static %}")
-            file.write("{% block content %}")
+            file.write("{% extends 'avia_ticket_sales/tickets.html' %}\n")
+            file.write("{% load static %}\n")
+            file.write("{% block content1 %}\n")
             file.write(cards)
             file.write("{% endblock %}")
 
