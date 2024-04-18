@@ -26,3 +26,7 @@ def registration_page(request):
         return render(request, 'avia_ticket_sales/registration.html')
     else:
         return render(request, 'avia_ticket_sales/registration.html')
+
+
+def reserve_tickets(request):
+    return render(request, 'avia_ticket_sales/cards.html')
