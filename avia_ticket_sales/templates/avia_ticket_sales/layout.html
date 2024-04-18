@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load static %}
 <style>
     *{
   padding: 0;
@@ -116,13 +116,13 @@ section{
       <label class="logo">ADJ</label>
       <ul>
         <li><a href="#">Главная страница</a></li>
-        <li><a href="#">О компании</a></li>
         <li><a href="#">Забронировать билет</a></li>
-        <li><a href="#">Контакты</a></li>
-        <li><a href="#">Обратная связь</a></li>
-        <li><a href="#">Личный кабинет</a></li>
+        <li><a href="{% url 'login' %}">Личный кабинет</a></li>
       </ul>
     </nav>
-    <section></section>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
   </body>
 </html>
