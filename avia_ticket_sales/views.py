@@ -1,5 +1,8 @@
+from django.db.models import QuerySet
 from django.shortcuts import render, redirect
 
+from users.models import User
+from kayak_ticket_parser import main as parse_tickets
 # Create your views here.
 
 
@@ -23,10 +26,17 @@ def registration_page(request):
     password = request.GET.get("password")
     if all([first_name, last_name, email, password]):
         print("SUCCESS")
-        return render(request, 'avia_ticket_sales/registration.html')
+        users_email: QuerySet = User.objects.values_list('email', flat=True)
+        if email not in users_email:
+            new_user = User(first_name=first_name, last_name=last_name, email=email, password=password)
+            new_user.save()
+        else:
+            return render(request, 'avia_ticket_sales/registration.html',
+                          context={"error": "Введеный Email уже занят"})
     else:
         return render(request, 'avia_ticket_sales/registration.html')
 
 
 def reserve_tickets(request):
+    parse_tickets()
     return render(request, 'avia_ticket_sales/cards.html')
