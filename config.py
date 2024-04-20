@@ -1,0 +1,5 @@
+SMTP_PASSWORD = 'nciwjnhxgqwtpuwr'
+SMTP_USERNAME = 'ghostgame101@yandex.ru'
+SMTP_SERVER = 'smtp.yandex.ru'
+RABBIT_HOSTNAME = 'localhost'
+RABBIT_MAIN_QUEUE = 'test'

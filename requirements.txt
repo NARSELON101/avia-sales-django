@@ -1,2 +1,6 @@
 Django
 django-ninja
+pika
+bs4
+requests
+lxml
