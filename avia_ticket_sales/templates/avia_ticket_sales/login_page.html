@@ -347,32 +347,13 @@ p {
       <div class="form-login">
 
           <!-- Start Form -->
-          <form action="" class="form-login__form">
-            <div class="field">
-              <div class="field__group">
-                <input
-                  autocomplete="off"
-                  type="email"
-                  placeholder="Email"
-                  name="username"
-                  class="field__input"
-                />
-              </div>
+          <form class="form-login__form" method="post">
+            <div class="input_fields">
+            {% csrf_token %}
+            {{ form.as_p }}
             </div>
             <div class="field">
-              <div class="field__group">
-                <input
-                  autocomplete="off"
-                  type="password"
-                  placeholder="Пароль"
-                  name="password"
-                  class="field__input"
-                  value=""
-                />
-              </div>
-            </div>
-            <div class="field">
-              <button class="form-login__button button button--yellow">
+              <button class="form-login__button button button--yellow" type="submit">
                 ВОЙТИ
               </button>
             </div>

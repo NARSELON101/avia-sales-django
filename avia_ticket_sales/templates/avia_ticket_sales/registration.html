@@ -426,52 +426,12 @@ p {
                   <p style="color: red">{{ error }}</p>
                   </div>
           <!-- Start Form -->
-          <form action="" class="form-login__form">
-            <div class="field">
-              <div class="field__group">
-                <input
-                  autocomplete="off"
-                  placeholder="Имя"
-                  name="first_name"
-                  class="field__input"
-                  value=""
-                />
-              </div>
-            </div>
-            <div class="field">
-              <div class="field__group">
-                <input
-                  autocomplete="off"
-                  placeholder="Фамилия"
-                  name="last_name"
-                  class="field__input"
-                  value=""
-                />
-              </div>
-            </div>
-            <div class="field">
-              <div class="field__group">
-                <input
-                  autocomplete="off"
-                  type="email"
-                  placeholder="Email"
-                  name="email"
-                  class="field__input"
-                />
-              </div>
-            </div>
-            <div class="field">
-              <div class="field__group">
-                <input
-                  autocomplete="off"
-                  type="password"
-                  placeholder="Пароль"
-                  name="password"
-                  class="field__input"
-                  value=""
-                />
-              </div>
-            </div>
+          <form method="post" class="form-login__form">
+              {% csrf_token %}
+              {% for f in form %}
+              <p><label class="form-label" for="{{ f.id_for_label }}">{{f.label}}: </label>{{ f }}</p>
+              <div class="form-error">{{ f.errors }}</div>
+              {% endfor %}
               <div class="field">
               <button class="form-login__button button button--yellow">
                 Продолжить
