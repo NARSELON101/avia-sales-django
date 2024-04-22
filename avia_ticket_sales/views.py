@@ -2,17 +2,11 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 
 from . token import generate_token
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.views import LoginView
 from django.contrib import messages
-from django.db.models import QuerySet
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
-from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import CreateView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage, send_mail
 
@@ -24,15 +18,6 @@ from kayak_ticket_parser import main as parse_tickets
 
 def index(request):
     return render(request, 'avia_ticket_sales/layout.html')
-
-
-class LoginUser(LoginView):
-    form_class = AuthUserForm
-    template_name = 'avia_ticket_sales/login_page.html'
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return dict(list(context.items()))
 
 
 def signin(request):
@@ -136,39 +121,6 @@ def activate(request, uidb64, token):
         return redirect('signin')
     else:
         return render(request, 'activation_failed.html')
-
-
-class RegisterUser(CreateView):
-    form_class = RegisterUserForm
-    template_name = 'avia_ticket_sales/registration.html'
-    success_url = reverse_lazy('test')
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return dict(list(context.items()))
-
-    def form_valid(self, form):
-        user = form.save()
-        login_page(self.request, user)
-        return redirect('home')
-
-
-def registration_page(request):
-    first_name = request.GET.get('first_name')
-    last_name = request.GET.get('last_name')
-    email = request.GET.get("email")
-    password = request.GET.get("password")
-    if all([first_name, last_name, email, password]):
-        print("SUCCESS")
-        users_email: QuerySet = User.objects.values_list('email', flat=True)
-        if email not in users_email:
-            new_user = User(first_name=first_name, last_name=last_name, email=email, password=password)
-            new_user.save()
-        else:
-            return render(request, 'avia_ticket_sales/registration.html',
-                          context={"error": "Введеный Email уже занят"})
-    else:
-        return render(request, 'avia_ticket_sales/registration.html')
 
 
 def reserve_tickets(request):
