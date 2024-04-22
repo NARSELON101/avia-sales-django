@@ -22,7 +22,7 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls),
-    path('',  views.index, name='index'),
+    path('',  views.index, name='home'),
     path("signup/", views.signup, name='signup'),
     path("signin/", views.signin, name='signin'),
     path('tickets/', views.reserve_tickets, name='tickets'),

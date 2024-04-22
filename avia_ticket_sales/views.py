@@ -36,7 +36,6 @@ def signin(request):
         else:
             messages.error(request, "Пользователя не существует")
             return render(request, "avia_ticket_sales/login_page.html", context={"form": AuthUserForm})
-    print("AAAA")
     return render(request, "avia_ticket_sales/login_page.html", context={"form": AuthUserForm})
 
 
@@ -50,23 +49,19 @@ def signup(request):
         password2 = request.POST["password2"]
 
         if User.objects.filter(username=username):
-            print(User.objects.filter(username=username).exists())
             messages.error(request, "Username already exist! Please try some other username.")
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
         if User.objects.filter(email=email).exists():
-            print(User.objects.filter(email=email).exists())
 
             messages.error(request, "Email Already Registered!!")
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
         if len(username) > 20:
-            print(len(username) > 20)
             messages.error(request, "Username must be under 20 charcters!!")
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
         if password1 != password2:
-            print(password1 == password2)
             messages.error(request, "Passwords didn't matched!!")
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
@@ -79,7 +74,6 @@ def signup(request):
         myuser.last_name = last_name
         myuser.is_active = False
         myuser.save()
-        print(myuser.pk)
         # Email Address Confirmation Email
         from_email = settings.EMAIL_HOST_USER
         to_list = [myuser.email]
@@ -98,7 +92,7 @@ def signup(request):
             [myuser.email],
         )
         send_mail(email_subject, message2, from_email, to_list, fail_silently=True)
-        return render(request, "avia_ticket_sales/login_page.html", context={"form": AuthUserForm})
+        return redirect('signin')
 
     return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
@@ -106,15 +100,12 @@ def signup(request):
 def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
-        print(uid)
         myuser = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
-        print(e)
         myuser = None
 
     if myuser is not None and generate_token.check_token(myuser, token):
         myuser.is_active = True
-        # user.profile.signup_confirmation = True
         myuser.save()
         login(request, myuser)
         messages.success(request, "Your Account has been activated!!")
@@ -124,5 +115,9 @@ def activate(request, uidb64, token):
 
 
 def reserve_tickets(request):
-    parse_tickets()
-    return render(request, 'avia_ticket_sales/cards.html')
+    if request.user.is_authenticated:
+        parse_tickets()
+        return render(request, 'avia_ticket_sales/cards.html')
+    else:
+        messages.error(request, 'Для доступа к бронированию авторизуйтесь на сайте')
+        return redirect('signin')
