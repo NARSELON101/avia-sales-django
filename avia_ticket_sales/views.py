@@ -36,6 +36,9 @@ class LoginUser(LoginView):
 
 
 def signin(request):
+    # Проверка, что пользователь зашел в акк
+    print(request.user.is_authenticated)
+    # TODO Сделать redirect в личный кабинет пользователя
     if request.method == "POST":
         username = request.POST["username"]
         pass1 = request.POST["password"]
