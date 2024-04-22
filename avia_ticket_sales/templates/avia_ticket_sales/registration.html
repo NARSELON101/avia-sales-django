@@ -423,9 +423,12 @@ p {
                     <p class="form-login__subtitle">
                       Заполните все поля:
                     </p>
-                  <p style="color: red">{{ error }}</p>
+                  {% if messages %}
+                  {% for message in messages %}
+                  <p style="color: red">{{ message|safe}}</p>
+                  {% endfor %}
+                  {% endif %}
                   </div>
-          <!-- Start Form -->
           <form method="post" class="form-login__form">
               {% csrf_token %}
               {% for f in form %}

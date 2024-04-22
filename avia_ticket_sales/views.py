@@ -1,19 +1,23 @@
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
+
+from . token import generate_token
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
+from django.contrib import messages
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import CreateView
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, send_mail
 
+from avia_ticket_sales import settings
 from avia_ticket_sales.forms import AuthUserForm, RegisterUserForm
-from avia_ticket_sales.token import account_activation_token
-from users.models import User
 from kayak_ticket_parser import main as parse_tickets
 # Create your views here.
 
@@ -31,33 +35,104 @@ class LoginUser(LoginView):
         return dict(list(context.items()))
 
 
+def signin(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        pass1 = request.POST["password"]
+        user = authenticate(username=username, password=pass1)
+        if user is not None:
+            login(request, user)
+            username = user.username
+            return redirect("tickets")
+
+        else:
+            messages.error(request, "Пользователя не существует")
+            return render(request, "avia_ticket_sales/login_page.html", context={"form": AuthUserForm})
+    print("AAAA")
+    return render(request, "avia_ticket_sales/login_page.html", context={"form": AuthUserForm})
+
+
 def signup(request):
     if request.method == 'POST':
-        template = LoginUser()
-        form = template.form_class(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
-            # to get the domain of the current site
-            current_site = get_current_site(request)
-            mail_subject = 'Activation link has been sent to your email id'
-            message = render_to_string('avia_ticket_sales/acc_activate_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-            })
-            to_email = form.cleaned_data.get('email')
-            email = EmailMessage(
-                mail_subject, message, to=[to_email]
-            )
-            email.send()
-            return HttpResponse('Please confirm your email address to complete the registration')
+        username = request.POST["username"]
+        first_name = request.POST["first_name"]
+        last_name = request.POST["last_name"]
+        email = request.POST["email"]
+        password1 = request.POST["password1"]
+        password2 = request.POST["password2"]
+
+        if User.objects.filter(username=username):
+            print(User.objects.filter(username=username).exists())
+            messages.error(request, "Username already exist! Please try some other username.")
+            return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
+
+        if User.objects.filter(email=email).exists():
+            print(User.objects.filter(email=email).exists())
+
+            messages.error(request, "Email Already Registered!!")
+            return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
+
+        if len(username) > 20:
+            print(len(username) > 20)
+            messages.error(request, "Username must be under 20 charcters!!")
+            return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
+
+        if password1 != password2:
+            print(password1 == password2)
+            messages.error(request, "Passwords didn't matched!!")
+            return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
+
+        if not username.isalnum():
+            messages.error(request, "Username must be Alpha-Numeric!!")
+            return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
+
+        myuser = User.objects.create_user(username, email, password1)
+        myuser.first_name = first_name
+        myuser.last_name = last_name
+        myuser.is_active = False
+        myuser.save()
+        print(myuser.pk)
+        # Email Address Confirmation Email
+        from_email = settings.EMAIL_HOST_USER
+        to_list = [myuser.email]
+        current_site = get_current_site(request)
+        email_subject = "Confirm your Email @ FiftyBit - Django Login!!"
+        message2 = render_to_string('avia_ticket_sales/email_confirm.html', {
+            'name': myuser.first_name,
+            'domain': current_site.domain,
+            'uid': urlsafe_base64_encode(force_bytes(myuser.pk)),
+            'token': generate_token.make_token(myuser)
+        })
+        email = EmailMessage(
+            email_subject,
+            message2,
+            settings.EMAIL_HOST_USER,
+            [myuser.email],
+        )
+        send_mail(email_subject, message2, from_email, to_list, fail_silently=True)
+        return render(request, "avia_ticket_sales/login_page.html", context={"form": AuthUserForm})
+
+    return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        print(uid)
+        myuser = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
+        print(e)
+        myuser = None
+
+    if myuser is not None and generate_token.check_token(myuser, token):
+        myuser.is_active = True
+        # user.profile.signup_confirmation = True
+        myuser.save()
+        login(request, myuser)
+        messages.success(request, "Your Account has been activated!!")
+        return redirect('signin')
     else:
-        template = RegisterUser
-        form = RegisterUserForm()
-    return render(request, 'avia_ticket_sales/registration.html')
+        return render(request, 'activation_failed.html')
 
 
 class RegisterUser(CreateView):
