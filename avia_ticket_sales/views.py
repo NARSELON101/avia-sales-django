@@ -49,24 +49,24 @@ def signup(request):
         password2 = request.POST["password2"]
 
         if User.objects.filter(username=username):
-            messages.error(request, "Username already exist! Please try some other username.")
+            messages.error(request, "Данный логин уже занят!")
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
         if User.objects.filter(email=email).exists():
 
-            messages.error(request, "Email Already Registered!!")
+            messages.error(request, "Email уже зарегистрирован!!")
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
         if len(username) > 20:
-            messages.error(request, "Username must be under 20 charcters!!")
+            messages.error(request, "Логин пользователя должен содержать меньше 20 символов!")
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
         if password1 != password2:
-            messages.error(request, "Passwords didn't matched!!")
+            messages.error(request, "Введенные пароли не совпадают!")
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
         if not username.isalnum():
-            messages.error(request, "Username must be Alpha-Numeric!!")
+            messages.error(request, "Имя пользователя должно содержать только буквы и цифры!")
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
         myuser = User.objects.create_user(username, email, password1)
@@ -78,7 +78,7 @@ def signup(request):
         from_email = settings.EMAIL_HOST_USER
         to_list = [myuser.email]
         current_site = get_current_site(request)
-        email_subject = "Confirm your Email @ FiftyBit - Django Login!!"
+        email_subject = "Подтверждение регистрации ADJ Sales Company"
         message2 = render_to_string('avia_ticket_sales/email_confirm.html', {
             'name': myuser.first_name,
             'domain': current_site.domain,
@@ -108,7 +108,7 @@ def activate(request, uidb64, token):
         myuser.is_active = True
         myuser.save()
         login(request, myuser)
-        messages.success(request, "Your Account has been activated!!")
+        messages.success(request, "Ваш аккаунт был активирован!")
         return redirect('signin')
     else:
         return render(request, 'activation_failed.html')
