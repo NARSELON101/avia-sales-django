@@ -121,3 +121,8 @@ def reserve_tickets(request):
     else:
         messages.error(request, 'Для доступа к бронированию авторизуйтесь на сайте')
         return redirect('signin')
+
+
+def user_profile(request):
+    print(request.user.first_name)
+    return render(request, 'avia_ticket_sales/user_profile.html')
