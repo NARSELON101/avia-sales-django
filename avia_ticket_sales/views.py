@@ -1,4 +1,4 @@
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 
 from . token import generate_token
@@ -22,16 +22,16 @@ def index(request):
 
 def signin(request):
     # Проверка, что пользователь зашел в акк
-    print(request.user.is_authenticated)
-    # TODO Сделать redirect в личный кабинет пользователя
+    if request.user.is_authenticated:
+        return redirect('profile')
+
     if request.method == "POST":
         username = request.POST["username"]
         pass1 = request.POST["password"]
         user = authenticate(username=username, password=pass1)
         if user is not None:
             login(request, user)
-            username = user.username
-            return redirect("tickets")
+            return redirect("profile")
 
         else:
             messages.error(request, "Пользователя не существует")
@@ -124,5 +124,13 @@ def reserve_tickets(request):
 
 
 def user_profile(request):
-    print(request.user.first_name)
-    return render(request, 'avia_ticket_sales/user_profile.html')
+    return render(request, 'avia_ticket_sales/user_profile.html', context={"user": request.user})
+
+
+def user_tickets(request):
+    return render(request, 'avia_ticket_sales/user_tickets.html')
+
+
+def user_logout(request):
+    logout(request)
+    return redirect('signin')
