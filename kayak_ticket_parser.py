@@ -12,7 +12,6 @@ class KayakTicketParser:
     def __init__(self, link=None):
         if not link:
             self.link = "https://www.kayak.com/flight-routes/Atlanta-Hartsfield-Jackson-ATL/New-York-LaGuardia-LGA"
-        self.tickets_list = []
 
     def run(self):
         response = requests.get(self.link)
@@ -37,17 +36,17 @@ class KayakTicketParser:
             data.update({'allowed': True})
 
             for ticket in tickets:
-                no_uid_tickets.append({key: value for key, value in ticket.items() if key != 'ticket_uid'})
+                no_uid_tickets.append({key: value for key, value in ticket.items() if key not in ['ticket_uid',
+                                                                                                  'user_model_id']})
             new_ticket = Ticket(**data)
 
             if data not in no_uid_tickets:
                 new_ticket.save()
 
-            self.tickets_list.append(new_ticket)
-
         cards = ''
+        all_tickets = Ticket.objects.all()
 
-        for ticket in self.tickets_list:
+        for ticket in all_tickets:
             cards += ticket.fill_html()
 
         with open(BASE_DIR / 'avia_ticket_sales' / 'templates' / 'avia_ticket_sales' / 'cards.html', 'w',

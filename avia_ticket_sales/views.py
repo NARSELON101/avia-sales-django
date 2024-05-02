@@ -1,6 +1,7 @@
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 
+from tickets.models import Ticket
 from . token import generate_token
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -92,7 +93,7 @@ def signup(request):
             [myuser.email],
         )
         send_mail(email_subject, message2, from_email, to_list, fail_silently=True)
-        return redirect('signin')
+        return render(request, 'avia_ticket_sales/acc_activate_page.html')
 
     return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
@@ -108,7 +109,6 @@ def activate(request, uidb64, token):
         myuser.is_active = True
         myuser.save()
         login(request, myuser)
-        messages.success(request, "Ваш аккаунт был активирован!")
         return redirect('signin')
     else:
         return render(request, 'activation_failed.html')
@@ -125,6 +125,14 @@ def reserve_tickets(request):
 
 def user_profile(request):
     return render(request, 'avia_ticket_sales/user_profile.html', context={"user": request.user})
+
+
+def reserve_ticket(request, ticket_uid):
+
+    ticket = Ticket.objects.get(ticket_uid=ticket_uid)
+    ticket.user_model = request.user
+    ticket.save()
+    return redirect('home')
 
 
 def user_tickets(request):

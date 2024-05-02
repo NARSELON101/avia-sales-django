@@ -29,5 +29,6 @@ urlpatterns = [
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path("profile/", views.user_profile, name='profile'),
     path("logout/", views.user_logout, name='logout'),
-    path('user_tickets/', views.user_tickets, name='user_tickets')
+    path('user_tickets/', views.user_tickets, name='user_tickets'),
+    path("reserve_ticket/<ticket_uid>", views.reserve_ticket, name='ticket_reserve')
 ]
