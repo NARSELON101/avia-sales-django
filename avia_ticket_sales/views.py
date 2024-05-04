@@ -1,19 +1,21 @@
-from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.models import User
-
-from tickets.models import Ticket
-from . token import generate_token
 from django.contrib import messages
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage, send_mail
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage, send_mail
+from django.views.generic import ListView
 
 from avia_ticket_sales import settings
 from avia_ticket_sales.forms import AuthUserForm, RegisterUserForm
-from kayak_ticket_parser import main as parse_tickets
+from tickets.models import Ticket
+from .token import generate_token
+
+
 # Create your views here.
 
 
@@ -54,7 +56,6 @@ def signup(request):
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
         if User.objects.filter(email=email).exists():
-
             messages.error(request, "Email уже зарегистрирован!!")
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
@@ -116,10 +117,22 @@ def activate(request, uidb64, token):
 
 def reserve_tickets(request):
     if request.user.is_authenticated:
-        parse_tickets()
+        # parse_tickets()
         return render(request, 'avia_ticket_sales/cards.html')
     else:
         messages.error(request, 'Для доступа к бронированию авторизуйтесь на сайте')
+        return redirect('signin')
+
+
+class TicketsView(LoginRequiredMixin, ListView):
+    model = Ticket
+    paginate_by = 5
+    template_name = 'avia_ticket_sales/cards.html'
+
+    context_object_name = 'tickets'
+
+    def handle_no_permission(self):
+        messages.error(self.request, 'Для доступа к бронированию авторизуйтесь на сайте')
         return redirect('signin')
 
 
@@ -128,7 +141,6 @@ def user_profile(request):
 
 
 def reserve_ticket(request, ticket_uid):
-
     ticket = Ticket.objects.get(ticket_uid=ticket_uid)
     ticket.user_model = request.user
     ticket.save()

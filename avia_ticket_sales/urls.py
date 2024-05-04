@@ -25,7 +25,11 @@ urlpatterns = [
     path('',  views.index, name='home'),
     path("signup/", views.signup, name='signup'),
     path("signin/", views.signin, name='signin'),
-    path('tickets/', views.reserve_tickets, name='tickets'),
+
+   # path('tickets/', views.reserve_tickets, name='tickets'),
+
+    path('tickets/', views.TicketsView.as_view(), name='tickets'),
+
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path("profile/", views.user_profile, name='profile'),
     path("logout/", views.user_logout, name='logout'),
