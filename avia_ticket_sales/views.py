@@ -135,6 +135,9 @@ class TicketsView(LoginRequiredMixin, ListView):
         messages.error(self.request, 'Для доступа к бронированию авторизуйтесь на сайте')
         return redirect('signin')
 
+    def get_queryset(self):
+        return Ticket.objects.filter(user_model__isnull=True)
+
 
 def user_profile(request):
     return render(request, 'avia_ticket_sales/user_profile.html', context={"user": request.user})
