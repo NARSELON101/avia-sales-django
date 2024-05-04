@@ -2,7 +2,7 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
-
+from django.urls import reverse
 
 CARD_TEMPLATE_ALLOWED = """
 <div class="col p-2">
@@ -19,7 +19,6 @@ CARD_TEMPLATE_ALLOWED = """
             </div>
         </div>
 """
-
 
 CARD_TEMPLATE_DISABLED = """
 <div class="col p-2">
@@ -46,7 +45,8 @@ class Ticket(models.Model):
     flight_date = models.CharField(max_length=30)
     back_date = models.CharField(max_length=30)
     allowed = models.BooleanField(default=True, max_length=30)
-    user_model = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True)
+    user_model = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True,
+                                   related_name='tickets')
     ticket_uid = models.UUIDField(default=uuid.uuid4, primary_key=True)
 
     def fill_html(self):
@@ -56,3 +56,5 @@ class Ticket(models.Model):
             url_string = "{{% url 'ticket_reserve' '{0}' %}}".format(self.ticket_uid)
             return CARD_TEMPLATE_ALLOWED.format(url_string=url_string, **self.__dict__)
 
+    def get_absolute_url(self):
+        return reverse('ticket_reserve', kwargs={'ticket_uid': self.ticket_uid})
