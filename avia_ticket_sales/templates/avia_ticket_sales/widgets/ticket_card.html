@@ -25,7 +25,7 @@
                 {% else %}
                 <button type="button" class="btn btn-info"
                         style="background-color: #588c8b !important; border-color: #588c8b; color: white"
-                        data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        data-bs-toggle="modal" data-bs-target="#exampleModal_{{ ticket.ticket_uid }}">
                     Создать напоминание о бронировании билета
                 </button>
                 {% endif %}
@@ -36,7 +36,7 @@
                 </button>
                 </a>
                 <!-- Modal -->
-                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal fade" id="exampleModal_{{ ticket.ticket_uid }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                       <div class="modal-header">
