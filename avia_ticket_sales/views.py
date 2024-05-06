@@ -141,8 +141,7 @@ class TicketsView(LoginRequiredMixin, ListView):
 
 
 def user_profile(request):
-    return render(request, 'avia_ticket_sales/user_profile.html', context={"user": request.user,
-                                                                           'ticket_notify': TicketNotify.objects.get()})
+    return render(request, 'avia_ticket_sales/user_profile.html', context={"user": request.user})
 
 
 def reserve_ticket(request, ticket_uid):
@@ -153,9 +152,11 @@ def reserve_ticket(request, ticket_uid):
 
 
 def cancel_reserve_ticket(request, ticket_uid):
-    ticket_notify = TicketNotify.objects.get(ticket_uid=ticket_uid)
-    if ticket_notify:
+    try:
+        ticket_notify = TicketNotify.objects.get(ticket_uid=ticket_uid)
         ticket_notify.delete()
+    except TicketNotify.DoesNotExist:
+        pass
 
     ticket = Ticket.objects.get(ticket_uid=ticket_uid)
     ticket.user_model = None
@@ -170,19 +171,29 @@ def add_notify(request, ticket_uid):
     return redirect("user_tickets")
 
 
+def cancel_notify(request, ticket_uid):
+    try:
+        ticket_notify = TicketNotify.objects.get(ticket_uid=ticket_uid)
+        ticket_notify.delete()
+    except TicketNotify.DoesNotExist:
+        pass
+
+    return redirect('user_tickets')
+
+
 def user_tickets(request):
     return render(request, 'avia_ticket_sales/user_tickets.html', context={'ticket_notify': TicketNotify.objects})
-
-
-@register.filter
-def in_category(things, ticket):
-    try:
-        result = things.get(ticket_uid=ticket)
-    except TicketNotify.DoesNotExist:
-        result = None
-    return result
 
 
 def user_logout(request):
     logout(request)
     return redirect('signin')
+
+
+@register.filter
+def ticket_notifies(things, ticket):
+    try:
+        result = things.get(ticket_uid=ticket)
+    except TicketNotify.DoesNotExist:
+        result = None
+    return result

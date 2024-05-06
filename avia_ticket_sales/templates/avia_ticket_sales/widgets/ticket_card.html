@@ -15,11 +15,13 @@
                 <h3>Цена: {{ ticket.price }}</h3>
                 {% if in_user_profile %}
                 {% if notify %}
+                <a href="{% url 'cancel_notify' ticket_uid=ticket.ticket_uid %}" class="card-link">
                 <button type="button" class="btn btn-info"
                         style="background-color: #588c8b !important; border-color: #588c8b; color: white"
                         data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    Отменить напоминание о бронировании билета #TODO Реализовать логику выполнения
+                    Отменить напоминание о бронировании билета
                 </button>
+                </a>
                 {% else %}
                 <button type="button" class="btn btn-info"
                         style="background-color: #588c8b !important; border-color: #588c8b; color: white"

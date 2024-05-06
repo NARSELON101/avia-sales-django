@@ -36,5 +36,6 @@ urlpatterns = [
     path('user_tickets/', views.user_tickets, name='user_tickets'),
     path("reserve_ticket/<ticket_uid>", views.reserve_ticket, name='ticket_reserve'),
     path("cancel_reserve_ticket/<ticket_uid>", views.cancel_reserve_ticket, name='cansel_reserve_ticket'),
-    path("add_notify/<ticket_uid>", views.add_notify, name='notify')
+    path("add_notify/<ticket_uid>", views.add_notify, name='notify'),
+    path("cancel_notify/<ticket_uid>", views.cancel_notify, name='cancel_notify')
 ]
