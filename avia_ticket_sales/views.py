@@ -147,7 +147,14 @@ def reserve_ticket(request, ticket_uid):
     ticket = Ticket.objects.get(ticket_uid=ticket_uid)
     ticket.user_model = request.user
     ticket.save()
-    return redirect('home')
+    return redirect('tickets')
+
+
+def cancel_reserve_ticket(request, ticket_uid):
+    ticket = Ticket.objects.get(ticket_uid=ticket_uid)
+    ticket.user_model = None
+    ticket.save()
+    return redirect('user_tickets')
 
 
 def user_tickets(request):

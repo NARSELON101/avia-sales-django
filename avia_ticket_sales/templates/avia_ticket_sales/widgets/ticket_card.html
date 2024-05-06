@@ -1,3 +1,8 @@
+<style>
+.btn-info {
+    margin-top: 5px;
+}
+</style>
 {% if ticket.user_model %}
     <div class="col p-2">
         <div class="card shadow rounded" style="width: 22rem; card-box-shadow: 1px">
@@ -8,10 +13,23 @@
                 <p class="card-text">Дата рейса: {{ ticket.flight_date }}</p>
                 <p class="card-text">Дата обратного рейса: {{ ticket.back_date }}</p>
                 <h3>Цена: {{ ticket.price }}</h3>
+                {% if in_user_profile %}
+                <button type="button" class="btn btn-info"
+                        style="background-color: #588c8b !important; border-color: #588c8b; color: white">
+                    Создать напоминание о бронировании билета
+                </button>
+                <a href="{% url 'cansel_reserve_ticket' ticket_uid=ticket.ticket_uid %}" class="card-link">
+                <button type="button" class="btn btn-info"
+                        style="background-color: red !important; border-color: red; color: white">
+                    Отменить бронь
+                </button>
+                </a>
+                {% else %}
                 <button type="button" class="btn btn-info"
                         style="background-color: gray !important; border-color: gray; color: white; cursor: not-allowed; pointer-events: none;">
                     Недоступно
                 </button>
+                {% endif %}
             </div>
         </div>
     </div>
