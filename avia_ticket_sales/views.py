@@ -12,7 +12,7 @@ from django.views.generic import ListView
 
 from avia_ticket_sales import settings
 from avia_ticket_sales.forms import AuthUserForm, RegisterUserForm
-from tickets.models import Ticket
+from tickets.models import Ticket, TicketNotify
 from .token import generate_token
 
 
@@ -151,10 +151,21 @@ def reserve_ticket(request, ticket_uid):
 
 
 def cancel_reserve_ticket(request, ticket_uid):
+    ticket_notify = TicketNotify.objects.get(ticket_uid=ticket_uid)
+    if ticket_notify:
+        ticket_notify.delete()
+
     ticket = Ticket.objects.get(ticket_uid=ticket_uid)
     ticket.user_model = None
     ticket.save()
     return redirect('user_tickets')
+
+
+def add_notify(request, ticket_uid):
+    ticket_obj = Ticket.objects.get(ticket_uid=ticket_uid)
+    notify_obj = TicketNotify(ticket_uid=ticket_obj, user_uid=request.user, notify_delay=request.POST.get("notify"))
+    notify_obj.save()
+    return redirect("user_tickets")
 
 
 def user_tickets(request):

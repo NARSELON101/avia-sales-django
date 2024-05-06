@@ -15,7 +15,8 @@
                 <h3>Цена: {{ ticket.price }}</h3>
                 {% if in_user_profile %}
                 <button type="button" class="btn btn-info"
-                        style="background-color: #588c8b !important; border-color: #588c8b; color: white">
+                        style="background-color: #588c8b !important; border-color: #588c8b; color: white"
+                        data-bs-toggle="modal" data-bs-target="#exampleModal">
                     Создать напоминание о бронировании билета
                 </button>
                 <a href="{% url 'cansel_reserve_ticket' ticket_uid=ticket.ticket_uid %}" class="card-link">
@@ -24,6 +25,42 @@
                     Отменить бронь
                 </button>
                 </a>
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Добавление напоминания</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <form action="{% url 'notify' ticket_uid=ticket.ticket_uid %}" method="post">
+                          {% csrf_token %}
+                      <div class="modal-body">
+                          <div class="container text-center">
+                              <div class="row">
+                                <div class="col">
+                                  Выберите частоту напоминания
+                                </div>
+                                <div class="col">
+                                      <select class="form-select" aria-label="Default select example" name="notify">
+                                          <option value="one_hour">Каждый час</option>
+                                          <option value="three_hours">Каждые 3 часа</option>
+                                          <option value="one_day">Каждый день</option>
+                                          <option value="one_week">Каждая неделя</option>
+                                      </select>
+                                </div>
+                              </div>
+
+                          </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-success">Сохранить напоминание</button>
+                      </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
                 {% else %}
                 <button type="button" class="btn btn-info"
                         style="background-color: gray !important; border-color: gray; color: white; cursor: not-allowed; pointer-events: none;">
