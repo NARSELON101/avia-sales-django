@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage, send_mail
 from django.shortcuts import render, redirect
+from django.template.defaultfilters import register
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -140,7 +141,8 @@ class TicketsView(LoginRequiredMixin, ListView):
 
 
 def user_profile(request):
-    return render(request, 'avia_ticket_sales/user_profile.html', context={"user": request.user})
+    return render(request, 'avia_ticket_sales/user_profile.html', context={"user": request.user,
+                                                                           'ticket_notify': TicketNotify.objects.get()})
 
 
 def reserve_ticket(request, ticket_uid):
@@ -169,7 +171,16 @@ def add_notify(request, ticket_uid):
 
 
 def user_tickets(request):
-    return render(request, 'avia_ticket_sales/user_tickets.html')
+    return render(request, 'avia_ticket_sales/user_tickets.html', context={'ticket_notify': TicketNotify.objects})
+
+
+@register.filter
+def in_category(things, ticket):
+    try:
+        result = things.get(ticket_uid=ticket)
+    except TicketNotify.DoesNotExist:
+        result = None
+    return result
 
 
 def user_logout(request):

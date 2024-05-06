@@ -14,11 +14,19 @@
                 <p class="card-text">Дата обратного рейса: {{ ticket.back_date }}</p>
                 <h3>Цена: {{ ticket.price }}</h3>
                 {% if in_user_profile %}
+                {% if notify %}
+                <button type="button" class="btn btn-info"
+                        style="background-color: #588c8b !important; border-color: #588c8b; color: white"
+                        data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    Отменить напоминание о бронировании билета #TODO Реализовать логику выполнения
+                </button>
+                {% else %}
                 <button type="button" class="btn btn-info"
                         style="background-color: #588c8b !important; border-color: #588c8b; color: white"
                         data-bs-toggle="modal" data-bs-target="#exampleModal">
                     Создать напоминание о бронировании билета
                 </button>
+                {% endif %}
                 <a href="{% url 'cansel_reserve_ticket' ticket_uid=ticket.ticket_uid %}" class="card-link">
                 <button type="button" class="btn btn-info"
                         style="background-color: red !important; border-color: red; color: white">
