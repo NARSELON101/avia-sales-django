@@ -1,19 +1,24 @@
-from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.models import User
+import datetime
 
-from tickets.models import Ticket
-from . token import generate_token
 from django.contrib import messages
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage, send_mail
 from django.shortcuts import render, redirect
+from django.template.defaultfilters import register
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage, send_mail
+from django.views.generic import ListView
 
 from avia_ticket_sales import settings
 from avia_ticket_sales.forms import AuthUserForm, RegisterUserForm
-from kayak_ticket_parser import main as parse_tickets
+from tickets.models import Ticket, TicketNotify
+from .token import generate_token
+
+
 # Create your views here.
 
 
@@ -54,7 +59,6 @@ def signup(request):
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
         if User.objects.filter(email=email).exists():
-
             messages.error(request, "Email уже зарегистрирован!!")
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
@@ -116,11 +120,26 @@ def activate(request, uidb64, token):
 
 def reserve_tickets(request):
     if request.user.is_authenticated:
-        parse_tickets()
+        # parse_tickets()
         return render(request, 'avia_ticket_sales/cards.html')
     else:
         messages.error(request, 'Для доступа к бронированию авторизуйтесь на сайте')
         return redirect('signin')
+
+
+class TicketsView(LoginRequiredMixin, ListView):
+    model = Ticket
+    paginate_by = 5
+    template_name = 'avia_ticket_sales/cards.html'
+
+    context_object_name = 'tickets'
+
+    def handle_no_permission(self):
+        messages.error(self.request, 'Для доступа к бронированию авторизуйтесь на сайте')
+        return redirect('signin')
+
+    def get_queryset(self):
+        return Ticket.objects.filter(user_model__isnull=True)
 
 
 def user_profile(request):
@@ -128,17 +147,56 @@ def user_profile(request):
 
 
 def reserve_ticket(request, ticket_uid):
-
     ticket = Ticket.objects.get(ticket_uid=ticket_uid)
     ticket.user_model = request.user
     ticket.save()
-    return redirect('home')
+    return redirect('tickets')
+
+
+def cancel_reserve_ticket(request, ticket_uid):
+    try:
+        ticket_notify = TicketNotify.objects.get(ticket_uid=ticket_uid)
+        ticket_notify.delete()
+    except TicketNotify.DoesNotExist:
+        pass
+
+    ticket = Ticket.objects.get(ticket_uid=ticket_uid)
+    ticket.user_model = None
+    ticket.save()
+    return redirect('user_tickets')
+
+
+def add_notify(request, ticket_uid):
+    ticket_obj = Ticket.objects.get(ticket_uid=ticket_uid)
+    notify_obj = TicketNotify(ticket_uid=ticket_obj, user_uid=request.user,
+                              notify_delay=request.POST.get("notify"))
+    notify_obj.save()
+    return redirect("user_tickets")
+
+
+def cancel_notify(request, ticket_uid):
+    try:
+        ticket_notify = TicketNotify.objects.get(ticket_uid=ticket_uid)
+        ticket_notify.delete()
+    except TicketNotify.DoesNotExist:
+        pass
+
+    return redirect('user_tickets')
 
 
 def user_tickets(request):
-    return render(request, 'avia_ticket_sales/user_tickets.html')
+    return render(request, 'avia_ticket_sales/user_tickets.html', context={'ticket_notify': TicketNotify.objects})
 
 
 def user_logout(request):
     logout(request)
     return redirect('signin')
+
+
+@register.filter
+def ticket_notifies(things, ticket):
+    try:
+        result = things.get(ticket_uid=ticket)
+    except TicketNotify.DoesNotExist:
+        result = None
+    return result

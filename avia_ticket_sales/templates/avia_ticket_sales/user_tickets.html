@@ -1,4 +1,12 @@
 {% extends 'avia_ticket_sales/user.html' %}
 {% load static %}
 {% block user_page %}
+    {% for ticket in user.tickets.all %}
+        <div class="container text-center p-5">
+            <div class="row row-cols-3 g-8 align-items-center">
+                {% include 'avia_ticket_sales/widgets/ticket_card.html' with ticket=ticket in_user_profile=True notify=ticket_notify|ticket_notifies:ticket %}
+            </div>
+        </div>
+    {% endfor %}
+
 {% endblock %}

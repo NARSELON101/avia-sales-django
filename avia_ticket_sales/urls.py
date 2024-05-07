@@ -25,10 +25,17 @@ urlpatterns = [
     path('',  views.index, name='home'),
     path("signup/", views.signup, name='signup'),
     path("signin/", views.signin, name='signin'),
-    path('tickets/', views.reserve_tickets, name='tickets'),
+
+   # path('tickets/', views.reserve_tickets, name='tickets'),
+
+    path('tickets/', views.TicketsView.as_view(), name='tickets'),
+
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path("profile/", views.user_profile, name='profile'),
     path("logout/", views.user_logout, name='logout'),
     path('user_tickets/', views.user_tickets, name='user_tickets'),
-    path("reserve_ticket/<ticket_uid>", views.reserve_ticket, name='ticket_reserve')
+    path("reserve_ticket/<ticket_uid>", views.reserve_ticket, name='ticket_reserve'),
+    path("cancel_reserve_ticket/<ticket_uid>", views.cancel_reserve_ticket, name='cansel_reserve_ticket'),
+    path("add_notify/<ticket_uid>", views.add_notify, name='notify'),
+    path("cancel_notify/<ticket_uid>", views.cancel_notify, name='cancel_notify')
 ]

@@ -9,12 +9,16 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-import os
+from os import environ
 from pathlib import Path
 from django.contrib.staticfiles import finders
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+RMQ_HOST = environ.get('RMQ_HOST', '127.0.0.1')
+RMQ_PORT = environ.get('RMQ_PORT', 5672)
+RMQ_USER = environ.get('RMQ_USER', 'guest')
+RMQ_PASS = environ.get('RMQ_PASS', 'guest')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -37,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'avia_ticket_sales',
     'tickets',
     'users'
 ]

@@ -37,7 +37,8 @@ class KayakTicketParser:
 
             for ticket in tickets:
                 no_uid_tickets.append({key: value for key, value in ticket.items() if key not in ['ticket_uid',
-                                                                                                  'user_model_id']})
+                                                                                                  'user_model_id',
+                                                                                                  'is_notified']})
             new_ticket = Ticket(**data)
 
             if data not in no_uid_tickets:

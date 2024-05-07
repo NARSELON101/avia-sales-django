@@ -1,8 +1,10 @@
+import datetime
 import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
-
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 CARD_TEMPLATE_ALLOWED = """
 <div class="col p-2">
@@ -19,7 +21,6 @@ CARD_TEMPLATE_ALLOWED = """
             </div>
         </div>
 """
-
 
 CARD_TEMPLATE_DISABLED = """
 <div class="col p-2">
@@ -46,8 +47,10 @@ class Ticket(models.Model):
     flight_date = models.CharField(max_length=30)
     back_date = models.CharField(max_length=30)
     allowed = models.BooleanField(default=True, max_length=30)
-    user_model = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True)
+    user_model = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True,
+                                   related_name='tickets')
     ticket_uid = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    is_notified = models.BooleanField(default=False)
 
     def fill_html(self):
         if self.user_model:
@@ -56,3 +59,20 @@ class Ticket(models.Model):
             url_string = "{{% url 'ticket_reserve' '{0}' %}}".format(self.ticket_uid)
             return CARD_TEMPLATE_ALLOWED.format(url_string=url_string, **self.__dict__)
 
+    def get_absolute_url(self):
+        return reverse('ticket_reserve', kwargs={'ticket_uid': self.ticket_uid})
+
+
+# TODO хз надо нет
+class NotifyTime(models.TextChoices):
+    ONE_HOUR = 'one_hour', _('Каждый час')
+    THREE_HOURS = 'three_hours', _('Каждые 3 часа')
+    ONE_DAY = 'one_day', _('Каждый день')
+    ONE_WEEK = 'one_week', _('Каждая неделя')
+
+
+class TicketNotify(models.Model):
+    ticket_uid = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='ticket_id')
+    user_uid = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_id')
+    notify_delay = models.TextField(choices=NotifyTime.choices)
+    last_notify = models.DateTimeField(default=datetime.datetime.now)
