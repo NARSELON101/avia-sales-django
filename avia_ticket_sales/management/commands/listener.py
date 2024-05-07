@@ -1,16 +1,9 @@
+from django.core.mail import send_mail
 from django.core.management.base import BaseCommand
-from django.conf import settings
-from PIL import Image
+from avia_ticket_sales import settings
 
 from avia_ticket_sales.utils import connect
 
-import io
-import os
-from io import BytesIO
-import urllib.parse
-import base64
-import pika
-import time
 import json
 
 
@@ -30,9 +23,11 @@ class Command(BaseCommand):
          Email - email, под которым зарегистрирован пользователь
          """
         try:
-            print(f"Processing")
-            res = json.loads(body.decode("utf-8"))
-            print(res)
-            print("Processing image 'to_resize' complete")
+            print(f"Получено сообщение")
+            response = json.loads(body.decode("utf-8")).get("response")
+            to_list = response.get('email')
+            message = response.get('message')
+            email_subject = "Напоминание о бронировании билета"
+            send_mail(email_subject, message, settings.EMAIL_HOST_USER, [to_list], fail_silently=True)
         except Exception as error:
-            print(error)
+            print("ERR", error)

@@ -5,12 +5,6 @@ import time
 
 from avia_ticket_sales import settings
 
-TIME_CHOICE = {"one_hour": datetime.timedelta(hours=1),
-               'three_hours': datetime.timedelta(hours=3),
-               'one_day': datetime.timedelta(days=1),
-               'one_week': datetime.timedelta(weeks=1)
-               }
-
 
 def connect(queue='notifies', retry=True):
     connected = False

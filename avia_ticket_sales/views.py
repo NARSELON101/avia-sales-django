@@ -17,7 +17,6 @@ from avia_ticket_sales import settings
 from avia_ticket_sales.forms import AuthUserForm, RegisterUserForm
 from tickets.models import Ticket, TicketNotify
 from .token import generate_token
-from .utils import TIME_CHOICE
 
 
 # Create your views here.
