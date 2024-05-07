@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,6 +17,7 @@ from avia_ticket_sales import settings
 from avia_ticket_sales.forms import AuthUserForm, RegisterUserForm
 from tickets.models import Ticket, TicketNotify
 from .token import generate_token
+from .utils import TIME_CHOICE
 
 
 # Create your views here.
@@ -166,7 +169,8 @@ def cancel_reserve_ticket(request, ticket_uid):
 
 def add_notify(request, ticket_uid):
     ticket_obj = Ticket.objects.get(ticket_uid=ticket_uid)
-    notify_obj = TicketNotify(ticket_uid=ticket_obj, user_uid=request.user, notify_delay=request.POST.get("notify"))
+    notify_obj = TicketNotify(ticket_uid=ticket_obj, user_uid=request.user,
+                              notify_delay=request.POST.get("notify"))
     notify_obj.save()
     return redirect("user_tickets")
 

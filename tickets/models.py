@@ -1,3 +1,4 @@
+import datetime
 import uuid
 
 from django.contrib.auth.models import User
@@ -74,3 +75,4 @@ class TicketNotify(models.Model):
     ticket_uid = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='ticket_id')
     user_uid = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_id')
     notify_delay = models.TextField(choices=NotifyTime.choices)
+    last_notify = models.DateTimeField(default=datetime.datetime.now)
