@@ -24,6 +24,7 @@ class Command(BaseCommand):
         connection, channel = connect()
 
         while True:
+            print("working")
             notifies = TicketNotify.objects.all()
             for notify in notifies:
                 notify: TicketNotify
@@ -43,7 +44,7 @@ class Command(BaseCommand):
                     notify.last_notify = current_time
                     notify.save()
                     print(last_notify, ">", notify.ticket_uid.ticket_uid, notify.ticket_uid.price)
-            time.sleep(15)
+            time.sleep(2)
 
     @staticmethod
     def create_message(ticket: Ticket, user: User):

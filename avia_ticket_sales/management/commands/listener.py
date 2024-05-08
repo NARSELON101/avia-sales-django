@@ -1,5 +1,7 @@
 from django.core.mail import send_mail
 from django.core.management.base import BaseCommand
+from pika.exceptions import StreamLostError
+
 from avia_ticket_sales import settings
 
 from avia_ticket_sales.utils import connect
@@ -14,7 +16,10 @@ class Command(BaseCommand):
         print("Слушатель очереди в Rabbit. Для выхода нажмите CTRL+C")
         channel.basic_consume(queue='notifies', auto_ack=True,
                               on_message_callback=self.callback)
-        channel.start_consuming()
+        try:
+            channel.start_consuming()
+        except StreamLostError:
+            self.handle(*args, **options)
 
     @staticmethod
     def callback(ch, method, properties, body):
