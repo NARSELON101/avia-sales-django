@@ -2,11 +2,6 @@ import json
 from datetime import datetime, timedelta
 
 from celery import shared_task
-from django.conf import settings
-from django.contrib.auth.models import User
-from django.core.mail import send_mail
-
-from tickets.models import TicketNotify, Ticket
 
 TIME_CHOICE = {"one_hour": timedelta(hours=1),
                'three_hours': timedelta(hours=3),
@@ -17,6 +12,8 @@ TIME_CHOICE = {"one_hour": timedelta(hours=1),
 
 @shared_task
 def check_notify():
+    from tickets.models import TicketNotify
+
     notifies = TicketNotify.objects.all()
     for notify in notifies:
         print(notify)
@@ -39,7 +36,8 @@ def check_notify():
             print(last_notify, ">", notify.ticket_uid.ticket_uid, notify.ticket_uid.price)
 
 
-def create_message(ticket: Ticket, user: User):
+def create_message(ticket, user):
+
     """ Создание сообщения для последующей отправки в RabbitMQ"""
     message = f'Добрый день {user.first_name}! Напоминаем вам о билете ' \
               f'в {ticket.to_country} из {ticket.from_country}. ' \
@@ -49,6 +47,8 @@ def create_message(ticket: Ticket, user: User):
 
 @shared_task
 def email_sander(emails: list[str], message: str):
+    from django.conf import settings
+    from django.core.mail import send_mail
     try:
         print(f"Получено сообщение")
         email_subject = "Напоминание о бронировании билета"
