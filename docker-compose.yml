@@ -5,7 +5,7 @@ version: '3.4'
 #    container_name: django_app
 #    build:
 #      context: .
-#      dockerfile: avia_ticket_sales/Dockerfile
+#      dockerfile: avia_ticket_sales/celery_worker.Dockerfile
 #    restart: always
 #    ports:
 #      - 8000:8000
@@ -16,4 +16,12 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
+  email_worker:
+    build:
+      dockerfile: celery_worker.Dockerfile
 
+    container_name: email_worker
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+    depends_on:
+      - rabbitmq

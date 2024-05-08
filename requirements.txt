@@ -1,6 +1,8 @@
-Django
+Django~=5.0.4
 django-ninja
-pika
-bs4
-requests
+pika~=1.3.2
+bs4~=0.0.2
+requests~=2.31.0
 lxml
+celery~=5.4.0
+beautifulsoup4~=4.12.3

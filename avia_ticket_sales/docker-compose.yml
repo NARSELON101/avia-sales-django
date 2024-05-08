@@ -5,3 +5,12 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
+  email_worker:
+    build:
+      context: ../
+      dockerfile: celery_worker.Dockerfile
+    container_name: email_worker
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+    depends_on:
+      - rabbitmq

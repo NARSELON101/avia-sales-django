@@ -32,6 +32,9 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 
+# Celery settings
+CELERY_BROKER_URL = environ.get("CELERY_BROKER_URL", f"amqp://{RMQ_USER}:{RMQ_PASS}@{RMQ_HOST}:{RMQ_PORT}/")
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -136,6 +139,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_HOST_USER = 'ghostgame101@yandex.ru'
-EMAIL_HOST_PASSWORD = 'nciwjnhxgqwtpuwr'
+EMAIL_HOST_USER = 'DaniiFonBaruh@yandex.ru'
+EMAIL_HOST_PASSWORD = 'nfimyjvseainihhw'
 EMAIL_PORT = 587

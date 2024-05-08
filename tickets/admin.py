@@ -16,7 +16,6 @@ from tickets.models import Ticket, TicketNotify
 from django.core.management import call_command
 from django.db import models
 # Register your models here.
-import psutil
 
 
 @admin.register(Ticket)
