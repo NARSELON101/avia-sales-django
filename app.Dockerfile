@@ -7,4 +7,4 @@ RUN pip install -r requirements.txt
 WORKDIR /app
 COPY . /app
 
-CMD ["celery", "-A", "avia_ticket_sales", "beat", "-l", "info"]
+CMD ["sh", "./start.sh"]

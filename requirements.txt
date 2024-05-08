@@ -6,3 +6,4 @@ requests~=2.31.0
 lxml
 celery~=5.4.0
 beautifulsoup4~=4.12.3
+gunicorn~=22.0.0

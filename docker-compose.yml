@@ -14,13 +14,14 @@ services:
   rabbitmq:
     image: rabbitmq:3.10.7-management
     ports:
-      - 15672:15672
-      - 5672:5672
+      - "15672:15672"
+      - "5672:5672"
   email_and_notification_worker:
     build:
       dockerfile: celery_notification_worker.Dockerfile
 
-    container_name: notification_watcher
+    volumes:
+      - db-data:/app/db
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
@@ -30,7 +31,24 @@ services:
     build:
       dockerfile: notification_beat.Dockerfile
     container_name: notification_beat
+    volumes:
+      - db-data:/app/db
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
       - rabbitmq
+
+
+  app:
+    build:
+      dockerfile: app.Dockerfile
+    container_name: app
+    ports:
+      - "8000:8000"
+    volumes:
+      - db-data:/app/db
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+
+volumes:
+  db-data:
