@@ -1,12 +1,14 @@
 import uuid
 
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-class User(models.Model):
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
-    email = models.EmailField()
-    password = models.CharField(max_length=30)
-    usr_uid = models.UUIDField(default=uuid.uuid4, primary_key=True)
+class User(AbstractUser):
     is_activated = models.BooleanField(default=False)
+    is_receive_news = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        db_table = 'auth_user'
