@@ -1,7 +1,21 @@
-import json
 from datetime import datetime, timedelta
 
-from celery import shared_task
+from celery import Celery
+
+from celery_notification_watcher.database import SessionLocal
+from celery_notification_watcher.models import TicketNotify
+from celery_notification_watcher.repository import TicketNotificationRepository
+from .config import *
+
+app = Celery("notification_watcher",
+             broker=f"amqp://{RMQ_USER}:{RMQ_PASS}@{RMQ_HOST}:{RMQ_PORT}/",
+             timezone=TIME_ZONE)
+
+__all__ = (app,)
+
+app.conf.task_routes = TASK_ROUTE
+
+email_sander = app.signature("celery_email_sander.email_sander")
 
 TIME_CHOICE = {"one_hour": timedelta(hours=1),
                'three_hours': timedelta(hours=3),
@@ -9,12 +23,12 @@ TIME_CHOICE = {"one_hour": timedelta(hours=1),
                'one_week': timedelta(weeks=1)
                }
 
+notification_repo = TicketNotificationRepository(SessionLocal)
 
-@shared_task
+
+@app.task
 def check_notify():
-    from tickets.models import TicketNotify
-
-    notifies = TicketNotify.objects.all()
+    notifies = notification_repo.all()
     for notify in notifies:
         print(notify)
         notify: TicketNotify
@@ -26,32 +40,18 @@ def check_notify():
         current_time = datetime.now()
 
         if last_notify + delay < current_time:
-            message = create_message(notify.ticket_uid,
-                                     notify.user_uid)
+            message = create_message(notify.tickets_ticket,
+                                     notify.auth_user)
             # Вызвать отправку письма
-            email_sander.delay([notify.user_uid.email], message)
+            email_sander.delay([notify.auth_user.email], message)
 
             notify.last_notify = current_time
-            notify.save()
-            print(last_notify, ">", notify.ticket_uid.ticket_uid, notify.ticket_uid.price)
+            notification_repo.save(notify)
 
 
 def create_message(ticket, user):
-
     """ Создание сообщения для последующей отправки в RabbitMQ"""
     message = f'Добрый день {user.first_name}! Напоминаем вам о билете ' \
               f'в {ticket.to_country} из {ticket.from_country}. ' \
               f'Дата рейса: {ticket.flight_date}. Обратный рейс: {ticket.back_date}'
     return message
-
-
-@shared_task
-def email_sander(emails: list[str], message: str):
-    from django.conf import settings
-    from django.core.mail import send_mail
-    try:
-        print(f"Получено сообщение")
-        email_subject = "Напоминание о бронировании билета"
-        send_mail(email_subject, message, settings.EMAIL_HOST_USER, emails, fail_silently=True)
-    except Exception as error:
-        print("ERR", error)

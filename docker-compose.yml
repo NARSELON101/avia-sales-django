@@ -1,38 +1,28 @@
-version: '3.4'
-
-#services:
-#  app:
-#    container_name: django_app
-#    build:
-#      context: .
-#      dockerfile: avia_ticket_sales/celery_notification_watcher.notification_beat.Dockerfile
-#    restart: always
-#    ports:
-#      - 8000:8000
-
 services:
   rabbitmq:
     image: rabbitmq:3.10.7-management
     ports:
       - "15672:15672"
       - "5672:5672"
-  email_and_notification_worker:
-    build:
-      dockerfile: celery_notification_worker.Dockerfile
-
-    volumes:
-      - db-data:/app/db
+  email_worker:
+    image: avia-sales-email:latest
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
       - rabbitmq
 
-  notification_beat:
-    build:
-      dockerfile: notification_beat.Dockerfile
-    container_name: notification_beat
+  notification_watcher:
+    image: avia-sales-notification-watcher:latest
     volumes:
-      - db-data:/app/db
+      - db-data:/app/celery_notification_watcher/db
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+    depends_on:
+      - rabbitmq
+      - app
+
+  notification_beat:
+    image: avia-sales-beat:latest
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
@@ -40,9 +30,7 @@ services:
 
 
   app:
-    build:
-      dockerfile: app.Dockerfile
-    container_name: app
+    image: avia-sales-app:latest
     ports:
       - "8000:8000"
     volumes:
