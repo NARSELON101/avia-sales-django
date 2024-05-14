@@ -1,10 +1,12 @@
+from time import sleep
+
 from celery import Celery
 
 from .config import *
+
 app = Celery("beat_maker",
              broker=CELERY_BROKER_URL or f"amqp://{RMQ_USER}:{RMQ_PASS}@{RMQ_HOST}:{RMQ_PORT}/",
              timezone=TIME_ZONE)
-
 __all__ = (app,)
 
 check_notify = app.signature("celery_notification_watcher.check_notify")

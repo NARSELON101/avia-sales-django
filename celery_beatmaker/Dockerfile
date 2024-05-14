@@ -8,4 +8,4 @@ RUN pip install -r requirements.txt
 
 COPY . /app/celery_beatmaker
 
-CMD ["celery", "-A", "celery_beatmaker.__init__", "beat", "-l", "info"]
+CMD ["celery", "-A", "celery_beatmaker", "beat", "-l", "info"]
