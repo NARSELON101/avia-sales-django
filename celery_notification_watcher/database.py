@@ -8,4 +8,3 @@ engine = create_engine(DATABASE_URL,
                        echo=ECHO)
 
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
-
