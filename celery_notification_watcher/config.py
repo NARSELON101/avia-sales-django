@@ -1,7 +1,7 @@
 from os import environ
 
 ECHO = False
-DATABASE_URL = "sqlite:///db/db.sqlite3"
+DATABASE_URL = environ.get("SQLITE_URL", 'sqlite:///db/db.sqlite3')
 
 RMQ_USER = environ.get('RMQ_USER', 'guest')
 RMQ_PASS = environ.get('RMQ_PASS', 'guest')

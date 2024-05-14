@@ -30,7 +30,6 @@ notification_repo = TicketNotificationRepository(SessionLocal)
 def check_notify():
     notifies = notification_repo.all()
     for notify in notifies:
-        print(notify)
         notify: TicketNotify
 
         last_notify = notify.last_notify

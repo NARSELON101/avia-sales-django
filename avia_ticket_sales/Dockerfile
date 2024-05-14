@@ -1,5 +1,4 @@
-FROM --platform=$BUILDPLATFORM python:3.7-alpine AS builder
-EXPOSE 8000
+FROM python:3.10.12-alpine3.18
 WORKDIR /app
 COPY requirements.txt /app
 RUN pip3 install -r requirements.txt --no-cache-dir

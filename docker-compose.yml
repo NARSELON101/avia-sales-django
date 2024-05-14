@@ -5,38 +5,47 @@ services:
       - "15672:15672"
       - "5672:5672"
   email_worker:
-    image: avia-sales-email:latest
+    build:
+      celery_email_sander/
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
       - rabbitmq
 
   notification_watcher:
-    image: avia-sales-notification-watcher:latest
+    build:
+      celery_notification_watcher/
     volumes:
-      - db-data:/app/celery_notification_watcher/db
+      - ./db:/app/db
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - SQLITE_URL=sqlite:///db/db.sqlite3
     depends_on:
       - rabbitmq
       - app
+    restart:
+      always
 
   notification_beat:
-    image: avia-sales-beat:latest
+    build:
+      celery_beatmaker/
+    volumes:
+      - ./celery_notification_watcher:/app/celery_notification_watcher
+      - ./celerybeat-schedule:/app/celerybeat-schedule
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
       - rabbitmq
+    restart:
+      always
 
 
   app:
-    image: avia-sales-app:latest
+    build:
+      ./
     ports:
       - "8000:8000"
     volumes:
-      - db-data:/app/db
+      - ./db:/app/db
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
-
-volumes:
-  db-data:
