@@ -63,7 +63,6 @@ class Ticket(models.Model):
         return reverse('ticket_reserve', kwargs={'ticket_uid': self.ticket_uid})
 
 
-# TODO хз надо нет
 class NotifyTime(models.TextChoices):
     ONE_HOUR = 'one_hour', _('Каждый час')
     THREE_HOURS = 'three_hours', _('Каждые 3 часа')
