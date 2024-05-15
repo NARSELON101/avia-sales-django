@@ -1,6 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django import forms
-from django.contrib.auth.models import User
 
 
 class AuthUserForm(AuthenticationForm):
@@ -17,5 +17,5 @@ class RegisterUserForm(UserCreationForm):
     password2 = forms.CharField(label='Повтор пароля', widget=forms.PasswordInput(attrs={'class': 'field__input'}))
 
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')

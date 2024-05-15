@@ -8,8 +8,6 @@ app = Celery("email_sander",
              broker=CELERY_BROKER_URL or f"amqp://{RMQ_USER}:{RMQ_PASS}@{RMQ_HOST}:{RMQ_PORT}/",
              timezone=TIME_ZONE)
 
-__all__ = (app,)
-
 
 @app.task
 def email_sander(emails: list[str], message: str):

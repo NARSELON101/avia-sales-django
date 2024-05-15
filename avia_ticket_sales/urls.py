@@ -23,7 +23,7 @@ urlpatterns = [
     *static(settings.STATIC_URL, document_root=settings.STATIC_ROOT),
     path('admin/', admin.site.urls),
     path('',  views.index, name='home'),
-    path("signup/", views.signup, name='signup'),
+    path("signup/", views.RegistrationView.as_view(), name='signup'),
     path("signin/", views.signin, name='signin'),
 
    # path('test/', views.reserve_tickets, name='tickets'),

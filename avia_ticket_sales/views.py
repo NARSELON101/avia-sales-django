@@ -1,18 +1,18 @@
-import datetime
-
 from django.contrib import messages
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage, send_mail
 from django.shortcuts import render, redirect
 from django.template.defaultfilters import register
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import ListView
 from kayak_ticket_parser import main as parse_tickets
+from django.views.generic import ListView, CreateView
+
 from avia_ticket_sales import settings
 from avia_ticket_sales.forms import AuthUserForm, RegisterUserForm
 from tickets.models import Ticket, TicketNotify
@@ -45,74 +45,63 @@ def signin(request):
     return render(request, "avia_ticket_sales/login_page.html", context={"form": AuthUserForm})
 
 
-def signup(request):
-    if request.method == 'POST':
-        username = request.POST["username"]
-        first_name = request.POST["first_name"]
-        last_name = request.POST["last_name"]
-        email = request.POST["email"]
-        password1 = request.POST["password1"]
-        password2 = request.POST["password2"]
+class RegistrationView(CreateView):
+    form_class = RegisterUserForm
+    template_name = 'avia_ticket_sales/registration.html'
+    success_url = reverse_lazy('login_page')
 
-        if User.objects.filter(username=username):
+    def post(self, request, *args, **kwargs):
+        # user cant register new users if he authorized
+        if request.user.is_authenticated:
             messages.error(request, "Данный логин уже занят!")
             return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
 
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email уже зарегистрирован!!")
-            return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
+        return super().post(request, *args, **kwargs)
 
-        if len(username) > 20:
-            messages.error(request, "Логин пользователя должен содержать меньше 20 символов!")
-            return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
-
-        if password1 != password2:
-            messages.error(request, "Введенные пароли не совпадают!")
-            return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
-
-        if not username.isalnum():
-            messages.error(request, "Имя пользователя должно содержать только буквы и цифры!")
-            return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
-
-        myuser = User.objects.create_user(username, email, password1)
-        myuser.first_name = first_name
-        myuser.last_name = last_name
-        myuser.is_active = False
-        myuser.save()
-        # Email Address Confirmation Email
+    def form_valid(self, form):
+        my_user = form.save()
         from_email = settings.EMAIL_HOST_USER
-        to_list = [myuser.email]
-        current_site = get_current_site(request)
+        to_list = [my_user.email]
+        current_site = get_current_site(self.request)
         email_subject = "Подтверждение регистрации ADJ Sales Company"
         message2 = render_to_string('avia_ticket_sales/email_confirm.html', {
-            'name': myuser.first_name,
+            'name': my_user.first_name,
             'domain': current_site.domain,
-            'uid': urlsafe_base64_encode(force_bytes(myuser.pk)),
-            'token': generate_token.make_token(myuser)
+            'uid': urlsafe_base64_encode(force_bytes(my_user.pk)),
+            'token': generate_token.make_token(my_user)
         })
         email = EmailMessage(
             email_subject,
             message2,
             settings.EMAIL_HOST_USER,
-            [myuser.email],
+            [my_user.email],
         )
         send_mail(email_subject, message2, from_email, to_list, fail_silently=True)
-        return render(request, 'avia_ticket_sales/acc_activate_page.html')
+        return render(self.request, 'avia_ticket_sales/acc_activate_page.html')
 
-    return render(request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
+    def form_invalid(self, form):
+        if "username" in form.errors:
+            messages.error(self.request, "Данный логин уже занят!")
+            return render(self.request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
+        if "password2" in form.errors:
+            messages.error(self.request, "Введенные пароли не совпадают!")
+            return render(self.request, 'avia_ticket_sales/registration.html', context={'form': RegisterUserForm})
+        # etc
+        return super().form_invalid(form)
 
 
 def activate(request, uidb64, token):
+    User = get_user_model()
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
-        myuser = User.objects.get(pk=uid)
+        my_user = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
-        myuser = None
+        my_user = None
 
-    if myuser is not None and generate_token.check_token(myuser, token):
-        myuser.is_active = True
-        myuser.save()
-        login(request, myuser)
+    if my_user is not None and generate_token.check_token(my_user, token):
+        my_user.is_active = True
+        my_user.save()
+        login(request, my_user)
         return redirect('signin')
     else:
         return render(request, 'activation_failed.html')
@@ -120,7 +109,7 @@ def activate(request, uidb64, token):
 
 def reserve_tickets(request):
     if request.user.is_authenticated:
-        parse_tickets()
+        # parse_tickets()
         return render(request, 'avia_ticket_sales/cards.html')
     else:
         messages.error(request, 'Для доступа к бронированию авторизуйтесь на сайте')
