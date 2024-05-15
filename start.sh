@@ -1,1 +1,0 @@
-gunicorn avia_ticket_sales.wsgi:application --bind 0.0.0.0:8000

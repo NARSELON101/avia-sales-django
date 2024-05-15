@@ -31,7 +31,6 @@ services:
       celery_beatmaker/
     volumes:
       - ./celery_notification_watcher:/app/celery_notification_watcher
-      - ./celerybeat-schedule:/app/celerybeat-schedule
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
@@ -47,5 +46,6 @@ services:
       - "8000:8000"
     volumes:
       - ./db:/app/db
+      - ./static:/static
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//

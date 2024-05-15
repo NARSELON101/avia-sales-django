@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import ListView
-
+from kayak_ticket_parser import main as parse_tickets
 from avia_ticket_sales import settings
 from avia_ticket_sales.forms import AuthUserForm, RegisterUserForm
 from tickets.models import Ticket, TicketNotify
@@ -120,7 +120,7 @@ def activate(request, uidb64, token):
 
 def reserve_tickets(request):
     if request.user.is_authenticated:
-        # parse_tickets()
+        parse_tickets()
         return render(request, 'avia_ticket_sales/cards.html')
     else:
         messages.error(request, 'Для доступа к бронированию авторизуйтесь на сайте')
