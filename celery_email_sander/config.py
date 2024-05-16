@@ -9,9 +9,9 @@ TIME_ZONE = environ.get('TIME_ZONE', 'UTC')
 
 CELERY_BROKER_URL = environ.get("CELERY_BROKER_URL", None)
 
-WRITE_TO_CONSOLE = True
+WRITE_TO_CONSOLE = environ.get("WRITE_TO_CONSOLE", True)
 
-EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_HOST_USER = 'DaniiFonBaruh@yandex.ru'
-EMAIL_HOST_PASSWORD = 'nfimyjvseainihhw'
-EMAIL_PORT = 587
+EMAIL_HOST = environ.get("EMAIL_HOST")
+EMAIL_HOST_USER = environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = environ.get("EMAIL_PORT")

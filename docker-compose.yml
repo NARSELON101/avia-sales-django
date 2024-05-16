@@ -7,8 +7,8 @@ services:
   email_worker:
     build:
       celery_email_sander/
-    environment:
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+    env_file:
+      - ./default.env
     depends_on:
       - rabbitmq
 
@@ -17,10 +17,8 @@ services:
       celery_notification_watcher/
     volumes:
       - ./db:/app/db
-    environment:
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
-      - SQLITE_URL=sqlite:///db/db.sqlite3
-      - AUTO_CONFIRM=False
+    env_file:
+      - ./default.env
     depends_on:
       - rabbitmq
       - app
@@ -32,8 +30,8 @@ services:
       celery_beatmaker/
     volumes:
       - ./celery_notification_watcher:/app/celery_notification_watcher
-    environment:
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+    env_file:
+      - ./default.env
     depends_on:
       - rabbitmq
     restart:
@@ -48,6 +46,5 @@ services:
     volumes:
       - ./db:/app/db
       - ./static:/static
-    environment:
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
-      - AUTO_CONFIRM=False
+    env_file:
+      - ./default.env
