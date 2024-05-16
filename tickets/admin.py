@@ -19,6 +19,20 @@ class TicketAdmin(admin.ModelAdmin):
                     , "is_notified"
                     , "is_confirmed"
                     , "reserve_time")
+
+    actions = ['confirm_tickets', "deny_tickets"]
+
+    def confirm_tickets(self, request, queryset):
+        for ticket in queryset:
+            ticket.reserve_time = None
+            ticket.is_confirmed = True
+            ticket.save()
+
+    def deny_tickets(self, request, queryset):
+        for ticket in queryset:
+            ticket.user_model = None
+            ticket.save()
+
     pass
 
 
