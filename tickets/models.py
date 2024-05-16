@@ -1,4 +1,5 @@
 import datetime
+import os
 import uuid
 
 from django.contrib.auth import get_user_model
@@ -51,6 +52,8 @@ class Ticket(models.Model):
                                    related_name='tickets')
     ticket_uid = models.UUIDField(default=uuid.uuid4, primary_key=True)
     is_notified = models.BooleanField(default=False)
+    is_confirmed = models.BooleanField(default=True)
+    reserve_time = models.DateTimeField(default=datetime.datetime.now, null=True, blank=True)
 
     def fill_html(self):
         if self.user_model:

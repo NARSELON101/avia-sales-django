@@ -1,10 +1,12 @@
+import os
 from datetime import datetime, timedelta
 
 from celery import Celery
 
 from celery_notification_watcher.database import SessionLocal
-from celery_notification_watcher.models import TicketNotify
-from celery_notification_watcher.repository import TicketNotificationRepository, NewsRepository, UsersRepository
+from celery_notification_watcher.models import TicketNotify, Ticket
+from celery_notification_watcher.repository import TicketNotificationRepository, \
+    NewsRepository, UsersRepository, TicketsRepository
 from .config import *
 
 app = Celery("notification_watcher",
@@ -26,6 +28,7 @@ TIME_CHOICE = {"one_hour": timedelta(hours=1),
 notification_repo = TicketNotificationRepository(SessionLocal)
 messages_repo = NewsRepository(SessionLocal)
 users_repo = UsersRepository(SessionLocal)
+tickets_repo = TicketsRepository(SessionLocal)
 
 
 @app.task
@@ -39,14 +42,28 @@ def check_newsletter():
 
 
 @app.task
+def check_ticket_confirm():
+    if not eval(os.environ.get("AUTO_CONFIRM", True)):
+        for ticket in tickets_repo.all():
+            ticket: Ticket
+            if ticket.reserve_time \
+                    and not ticket.is_confirmed \
+                    and format_time(ticket.reserve_time) + timedelta(minutes=15) < datetime.now():
+                print(f"Бронь на билет с ID {ticket.ticket_uid} Отменена")
+                ticket.auth_user = None
+                ticket.reserve_time = None
+                ticket.is_confirmed = True
+                tickets_repo.save(ticket)
+
+
+@app.task
 def check_notify():
     notifies = notification_repo.all()
     for notify in notifies:
         notify: TicketNotify
 
-        last_notify = notify.last_notify
-        last_notify = last_notify.strftime("%Y-%m-%d %H:%M:%S")
-        last_notify = datetime.strptime(last_notify, "%Y-%m-%d %H:%M:%S")
+        last_notify = format_time(notify.last_notify)
+
         delay = TIME_CHOICE[notify.notify_delay]
         current_time = datetime.now()
 
@@ -58,6 +75,12 @@ def check_notify():
 
             notify.last_notify = current_time
             notification_repo.save(notify)
+
+
+def format_time(time_str):
+    time_str = time_str.strftime("%Y-%m-%d %H:%M:%S")
+    time_str = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
+    return time_str
 
 
 def create_message(ticket, user):

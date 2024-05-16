@@ -4,6 +4,7 @@
 }
 </style>
 {% if ticket.user_model %}
+    {% if ticket.is_confirmed %}
     <div class="col p-2">
         <div class="card shadow rounded" style="width: 22rem; card-box-shadow: 1px">
             <div class="card-body">
@@ -80,6 +81,24 @@
             </div>
         </div>
     </div>
+    {% else %}
+    <div class="col p-2">
+        <div class="card shadow rounded" style="width: 22rem; card-box-shadow: 1px">
+            <div class="card-body">
+                <h5 class="card-title">Из {{ ticket.from_country }}</h5>
+                <h5 class="card-title">В {{ ticket.to_country }}</h5>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Время полета: {{ ticket.fly_time }}</h6>
+                <p class="card-text">Дата рейса: {{ ticket.flight_date }}</p>
+                <p class="card-text">Дата обратного рейса: {{ ticket.back_date }}</p>
+                <h3>Цена: {{ ticket.price }}</h3>
+                <button type="button" class="btn btn-info"
+                        style="background-color: gray !important; border-color: gray; color: white; cursor: not-allowed; pointer-events: none;">
+                    Ожидается подтверждение администратором
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 {% else %}
     <div class="col p-2">
         <div class="card shadow rounded" style="width: 22rem; card-box-shadow: 1px">

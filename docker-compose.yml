@@ -20,6 +20,7 @@ services:
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
       - SQLITE_URL=sqlite:///db/db.sqlite3
+      - AUTO_CONFIRM=False
     depends_on:
       - rabbitmq
       - app
@@ -49,3 +50,4 @@ services:
       - ./static:/static
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - AUTO_CONFIRM=False

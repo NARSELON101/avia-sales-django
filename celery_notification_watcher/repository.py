@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session, joinedload
 
 from celery_notification_watcher import SessionLocal
-from celery_notification_watcher.models import TicketNotify, News, User
+from celery_notification_watcher.models import TicketNotify, News, User, Ticket
 
 
 class TicketNotificationRepository:
@@ -61,4 +61,24 @@ class NewsRepository:
     def delete(self, news):
         with self.db() as session:
             session.delete(news)
+            session.commit()
+
+
+class TicketsRepository:
+    def __init__(self, db: SessionLocal):
+        self.db = db
+
+    def all(self):
+        with self.db() as session:
+            session: Session
+            return session.query(Ticket).all()
+
+    def save(self, ticket: Ticket):
+        with self.db() as session:
+            session.add(ticket)
+            session.commit()
+
+    def delete(self, ticket):
+        with self.db() as session:
+            session.delete(ticket)
             session.commit()

@@ -1,3 +1,6 @@
+import datetime
+import os
+
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -137,8 +140,15 @@ def user_profile(request):
 
 def reserve_ticket(request, ticket_uid):
     ticket = Ticket.objects.get(ticket_uid=ticket_uid)
+
+    if not eval(os.environ.get("AUTO_CONFIRM", True)):
+        ticket.is_confirmed = False
+        ticket.reserve_time = datetime.datetime.now()
+
     ticket.user_model = request.user
+
     ticket.save()
+
     return redirect('tickets')
 
 
@@ -151,6 +161,8 @@ def cancel_reserve_ticket(request, ticket_uid):
 
     ticket = Ticket.objects.get(ticket_uid=ticket_uid)
     ticket.user_model = None
+    ticket.reserve_time = None
+    ticket.is_confirmed = True
     ticket.save()
     return redirect('user_tickets')
 
