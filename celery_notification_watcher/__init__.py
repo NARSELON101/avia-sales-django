@@ -4,7 +4,7 @@ from celery import Celery
 
 from celery_notification_watcher.database import SessionLocal
 from celery_notification_watcher.models import TicketNotify
-from celery_notification_watcher.repository import TicketNotificationRepository
+from celery_notification_watcher.repository import TicketNotificationRepository, NewsRepository, UsersRepository
 from .config import *
 
 app = Celery("notification_watcher",
@@ -24,6 +24,18 @@ TIME_CHOICE = {"one_hour": timedelta(hours=1),
                }
 
 notification_repo = TicketNotificationRepository(SessionLocal)
+messages_repo = NewsRepository(SessionLocal)
+users_repo = UsersRepository(SessionLocal)
+
+
+@app.task
+def check_newsletter():
+    messages_list = messages_repo.all()
+    if messages_list:
+        row = messages_list[0]
+        email_subjects = [row.email for row in users_repo.get_notified_users()]
+        email_sander.delay(email_subjects, row.message)
+        messages_repo.delete(row)
 
 
 @app.task
