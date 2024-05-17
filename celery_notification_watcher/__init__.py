@@ -43,17 +43,16 @@ def check_newsletter():
 
 @app.task
 def check_ticket_confirm():
-    if not eval(os.environ.get("AUTO_CONFIRM", True)):
-        for ticket in tickets_repo.all():
-            ticket: Ticket
-            if ticket.reserve_time \
-                    and not ticket.is_confirmed \
-                    and format_time(ticket.reserve_time) + timedelta(minutes=15) < datetime.now():
-                print(f"Бронь на билет с ID {ticket.ticket_uid} Отменена")
-                ticket.auth_user = None
-                ticket.reserve_time = None
-                ticket.is_confirmed = True
-                tickets_repo.save(ticket)
+    for ticket in tickets_repo.all():
+        ticket: Ticket
+        if ticket.reserve_time \
+                and not ticket.is_confirmed \
+                and format_time(ticket.reserve_time) + timedelta(minutes=15) < datetime.now():
+            print(f"Бронь на билет с ID {ticket.ticket_uid} Отменена")
+            ticket.auth_user = None
+            ticket.reserve_time = None
+            ticket.is_confirmed = True
+            tickets_repo.save(ticket)
 
 
 @app.task
