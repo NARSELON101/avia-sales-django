@@ -164,11 +164,13 @@ def cancel_reserve_ticket(request, ticket_uid):
 
 
 def add_notify(request, ticket_uid):
-    ticket_obj = Ticket.objects.get(ticket_uid=ticket_uid)
-    # todo сделать проверку, что Notify с переданным ticket_uid не существует
-    notify_obj = TicketNotify(ticket_uid=ticket_obj, user_uid=request.user,
-                              notify_delay=request.POST.get("notify"))
-    notify_obj.save()
+    try:
+        TicketNotify.objects.get(ticket_uid=ticket_uid)
+    except TicketNotify.DoesNotExist:
+        ticket_obj = Ticket.objects.get(ticket_uid=ticket_uid)
+        notify_obj = TicketNotify(ticket_uid=ticket_obj, user_uid=request.user,
+                                  notify_delay=request.POST.get("notify"))
+        notify_obj.save()
     return redirect("user_tickets")
 
 
