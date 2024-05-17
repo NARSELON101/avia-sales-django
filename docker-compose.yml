@@ -8,7 +8,7 @@ services:
     build:
       celery_email_sander/
     env_file:
-      - ./default.env
+      - ./.env
     depends_on:
       - rabbitmq
 
@@ -18,7 +18,7 @@ services:
     volumes:
       - ./db:/app/db
     env_file:
-      - ./default.env
+      - ./.env
     depends_on:
       - rabbitmq
       - app
@@ -31,7 +31,7 @@ services:
     volumes:
       - ./celery_notification_watcher:/app/celery_notification_watcher
     env_file:
-      - ./default.env
+      - ./.env
     depends_on:
       - rabbitmq
     restart:
@@ -47,4 +47,4 @@ services:
       - ./db:/app/db
       - ./static:/static
     env_file:
-      - ./default.env
+      - ./.env

@@ -12,10 +12,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import ListView
-from kayak_ticket_parser import main as parse_tickets
 from django.views.generic import ListView, CreateView
-
 from avia_ticket_sales import settings
 from avia_ticket_sales.forms import AuthUserForm, RegisterUserForm
 from tickets.models import Ticket, TicketNotify
@@ -140,8 +137,7 @@ def user_profile(request):
 
 def reserve_ticket(request, ticket_uid):
     ticket = Ticket.objects.get(ticket_uid=ticket_uid)
-
-    if not eval(os.environ.get("AUTO_CONFIRM", True)):
+    if not eval(os.environ.get("AUTO_CONFIRM", "True")):
         ticket.is_confirmed = False
         ticket.reserve_time = datetime.datetime.now()
 

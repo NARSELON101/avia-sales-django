@@ -11,7 +11,7 @@ app = Celery("email_sander",
 
 @app.task
 def email_sander(emails: list[str], message: str):
-    if WRITE_TO_CONSOLE:
+    if eval(WRITE_TO_CONSOLE):
         print(emails)
         print(message)
         return
